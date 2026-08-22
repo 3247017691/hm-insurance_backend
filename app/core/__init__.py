@@ -6,6 +6,8 @@ from app.core.config import (
     Settings,
     settings,
 )
+from app.core.logging import configure_logging, get_logger, _log_level
+
 
 __all__ = [
     "AppSettings",
@@ -14,4 +16,9 @@ __all__ = [
     "LoggingSettings",
     "Settings",
     "settings",
+    "configure_logging",
+    "get_logger",
+    "_log_level",
+
 ]
+
