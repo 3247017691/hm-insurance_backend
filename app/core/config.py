@@ -28,6 +28,12 @@ class DatabaseSettings(EnvSettings):
     name: str = Field(alias="DB_NAME", default="insurance")
     user: str = Field(alias="DB_USER", default="insurance")
     password: str = Field(alias="DB_PASSWORD", default="insurance123")
+    echo: bool = Field(alias="DB_ECHO", default=False)
+    pool_size: int = Field(alias="DB_POOL_SIZE", default=5)
+    max_overflow: int = Field(alias="DB_MAX_OVERFLOW", default=10)
+    pool_timeout: int = Field(alias="DB_POOL_TIMEOUT", default=30)
+    pool_recycle: int = Field(alias="DB_POOL_RECYCLE", default=1800)
+
 
     @computed_field
     @property
