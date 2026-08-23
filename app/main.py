@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app import settings
 from app.core import configure_logging, get_logger
+from app.core.lifespan import lifespan
 
 configure_logging(settings.logging.level)
 logger = get_logger(__name__)
@@ -11,6 +12,7 @@ logger = get_logger(__name__)
 app = FastAPI(
     title=settings.app.name,
     debug=settings.app.debug,
+    lifespan=lifespan,
 )
 
 app.add_middleware(
