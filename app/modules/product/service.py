@@ -8,10 +8,17 @@ from app.modules.product.repository import ProductRepository
 
 class ProductService:
     """保险产品业务逻辑"""
-
     def __init__(self, session: AsyncSession):
         self.session = session
         self.repository = ProductRepository(session)
+
+    async def list_products(self, category: str | None, ):
+        """
+        按分类查询产品列表
+        :param category: 产品分类
+        :return: 产品列表
+        """
+        return await self.repository.find_by_category(category)
 
     async def get_candidates(
         self,
