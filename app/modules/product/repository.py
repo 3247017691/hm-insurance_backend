@@ -50,5 +50,5 @@ class ProductRepository:
         if premium_min is not None:
             stmt = stmt.where(Product.min_premium < premium_min)
 
-        result = await self.session.execute(stmt.limit(limit))
+        result = await self.session.execute(stmt.order_by(Product.min_premium.asc().nullslast()).limit(limit))
         return list(result.scalars().all())
