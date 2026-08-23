@@ -20,7 +20,7 @@ class ProductService:
         """
         return await self.repository.find_by_category(category)
 
-    async def get_candidates(
+    async def list_products_by_category(
         self,
         categories: list[str],
         premium_min: Decimal | None = None,
@@ -35,7 +35,7 @@ class ProductService:
         products: list[Product] = []
         # 逐个险种查询，每个险种独立限制返回数量
         for category in categories:
-            candidates = await self.repository.get_candidates(
+            candidates = await self.repository.find_limit_by_category(
                 category=category,
                 premium_min=premium_min,
                 limit=limit_per_category,

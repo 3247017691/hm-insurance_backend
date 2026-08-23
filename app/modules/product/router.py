@@ -5,21 +5,23 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infra.database import get_session
+from app.modules.product.models import Product
 from app.modules.product.schemas import ProductResponse
 from app.modules.product.service import ProductService
 
 router = APIRouter(prefix="/api/v1/products", tags=["保险产品"])
 
+async def get_product_service(
+    session: AsyncSession = Depends(get_session),
+) -> ProductService:
+    return ProductService(session)
 
 
 @router.get("", response_model=list[ProductResponse], summary="查询保险产品列表", description="按分类查询保险产品列表")
 async def list_products(
     category: str | None = None,
-    session: AsyncSession = Depends(get_session),
+    service: ProductService = Depends(get_product_service),
 ) -> list[ProductResponse]:
-    # 1.获取Service
-    service = ProductService(session)
-    # 2.查询并返回产品列表
     return await service.list_products(category)
 
 
@@ -42,7 +44,7 @@ async def get_candidates(
     ] = 5,
 ) -> list[ProductResponse]:
     service = ProductService(session)
-    return await service.get_candidates(
+    return await service.list_products_by_category(
         categories=categories,
         premium_min=premium_min,
         limit_per_category=limit_per_category,

@@ -29,7 +29,7 @@ class ProductRepository:
         )
         return list(products.all())
 
-    async def get_candidates(
+    async def find_limit_by_category(
         self,
         category: str,
         premium_min: Decimal | None = None,
