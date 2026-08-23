@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.product import repository as product_repository
 from app.modules.product.models import Product
+from app.modules.product.repository import ProductRepository
 
 
 class ProductService:
@@ -11,6 +11,7 @@ class ProductService:
 
     def __init__(self, session: AsyncSession):
         self.session = session
+        self.repository = ProductRepository(session)
 
     async def get_candidates(
         self,
@@ -27,8 +28,7 @@ class ProductService:
         products: list[Product] = []
         # 逐个险种查询，每个险种独立限制返回数量
         for category in categories:
-            candidates = await product_repository.get_candidates(
-                self.session,
+            candidates = await self.repository.get_candidates(
                 category=category,
                 premium_min=premium_min,
                 limit=limit_per_category,
