@@ -10,21 +10,28 @@ class ProductRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def find_id_category(
-        self,
-        category: str | None,
-    ) -> list[Product]:
-        # 1.组装查询条件：默认只查询active状态的产品
-        stmt = select(Product).where(Product.status == "active")
-        # 2.如果有category，则追加category过滤（多次调用where默认是AND关系）
-        if category is not None:
-            stmt = stmt.where(Product.category == category)
+    class ProductRepository:
+        def __init__(self, session: AsyncSession):
+            self.session = session
 
-        # 3.查询产品列表
-        products = await self.session.scalars(
-            stmt.order_by(Product.id.asc())
-        )
-        return list(products)
+        async def find_by_category(
+                self,
+                category: str | None,
+        ) -> list[Product]:
+            # 1.组装查询条件
+            # 1.1.默认只查询active状态的产品
+            conditions = [Product.status == "active"]
+            # 1.2.如果有category，则添加category过滤
+            if category:
+                conditions.append(Product.category == category)
+
+            # 2.查询产品列表
+            products = await self.session.scalars(
+                select(Product)
+                .where(*conditions)
+                .order_by(Product.id.asc())
+            )
+            return list(products.all())
 
     async def get_candidates(
         self,
