@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/v1/products", tags=["保险产品"])
 
 
 
-@router.get("", response_model=list[ProductResponse])
+@router.get("", response_model=list[ProductResponse], summary="查询保险产品列表", description="按分类查询保险产品列表")
 async def list_products(
     category: str | None = None,
     session: AsyncSession = Depends(get_session),
