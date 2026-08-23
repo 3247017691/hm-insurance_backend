@@ -10,10 +10,10 @@ class ProductResponse(BaseModel):
     clause_name: str
     category: str
     insurer: str
-    image_url: str
-    description: str
+    image_url: str | None
+    description: str | None
     min_premium: Decimal | None
     max_premium: Decimal | None
     target_group: str | None
-    highlights: list[str]
+    highlights: list[str] | None
     status: str

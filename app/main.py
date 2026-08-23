@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app import settings
 from app.core import configure_logging, get_logger
 from app.core.lifespan import lifespan
+from app.modules.product.router import router as product_router
 
 configure_logging(settings.logging.level)
 logger = get_logger(__name__)
@@ -22,6 +23,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(product_router)
 
 
 @app.get("/health", summary='健康检测端口')
