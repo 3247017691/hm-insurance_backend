@@ -1,10 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from app import settings
 from app.core import configure_logging, get_logger
 from app.core.lifespan import lifespan
+from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
 from app.modules.product.router import router as product_router
 from app.modules.chat_thread.router import router as chat_thread_router
 
@@ -33,6 +35,19 @@ app.add_middleware(
 def health_check() -> dict[str, str]:
     logger.info("执行检查")
     return {'status':'ok'}
+
+# 统一处理异常信息，发现是ChatThreadNotFound，返回对应的错误状态码和错误信息
+@app.exception_handler(ChatThreadNotFoundError)
+def handle_exception(request: Request, exc: Exception):
+    logger.error(f"处理异常, 请求路径: {request.url}, 异常信息: {exc}")
+    return JSONResponse(
+        status_code=400,# http状态码
+        content={
+            "code": "CHAT_THREAD_NOT_FOUND", #项目自定义的状态码
+            "message": "会话不存在或者不属于当前用户"
+        }
+    )
+
 
 if __name__ == '__main__':
     uvicorn.run(

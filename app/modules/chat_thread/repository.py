@@ -38,6 +38,6 @@ class ChatThreadRepository:
         """更新会话，刷新到数据库，事务由 service 层管理"""
         await self.session.flush()
 
-    async def delete(self,thread: ChatThread) -> None:
-        """删除会话"""
+    async def delete(self, thread: ChatThread) -> None:
+        """删除会话，AsyncSession.delete 是异步方法（级联删除可能涉及懒加载），必须 await"""
         await self.session.delete(thread)

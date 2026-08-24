@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .exceptions import ChatThreadNotFoundError
 from .models import ChatThread
 from .repository import ChatThreadRepository
 from .schemas import ChatThreadResponse
@@ -35,7 +36,7 @@ class ChatThreadService:
             chat_thread = await self.repository.get_by_id(thread_id=thread_id, user_id=user_id)
             # 2.判断user_id的会话是否存在或者是否一致，统一返回会话不存在，避免泄露其他用户的会话信息
             if not chat_thread:
-                raise HTTPException(status_code=404, detail="会话不存在")
+                raise ChatThreadNotFoundError
             # 3.修改会话标题
             chat_thread.title = title
             await self.repository.update(chat_thread)
@@ -50,6 +51,6 @@ class ChatThreadService:
         async with self.session.begin():
             thread = await self.repository.get_by_id(thread_id=thread_id, user_id=user_id)
             if thread is None:
-                raise HTTPException(status_code=404, detail="会话不存在")
+                raise ChatThreadNotFoundError
             await self.repository.delete(thread)
 
