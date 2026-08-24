@@ -6,14 +6,16 @@ from app import settings
 from app.core import configure_logging, get_logger
 from app.core.lifespan import lifespan
 from app.modules.product.router import router as product_router
+from app.modules.chat_thread.router import router as chat_thread_router
 
 app = FastAPI(
     title=settings.app.name,
     debug=settings.app.debug,
     lifespan=lifespan,
 )
+app.include_router(chat_thread_router)
 
-configure_logging(settings.logging.level)
+configure_logging(settings.log.level)
 logger = get_logger(__name__)
 
 app.add_middleware(

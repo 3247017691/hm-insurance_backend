@@ -44,7 +44,8 @@ class DatabaseSettings(EnvSettings):
             host=self.host,
             port=self.port,
             username=self.user,
-            password=self.password
+            password=self.password,
+            path=self.name
         ).encoded_string()
 
 class LLMSettings(EnvSettings):
@@ -57,10 +58,10 @@ class LoggingSettings(EnvSettings):
     level: str = Field(alias="LOGGING_LEVEL", default="INFO") # 可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL
 
 class Settings(BaseSettings):
-    app: AppSettings = AppSettings
-    db: DatabaseSettings = DatabaseSettings
-    llm: LLMSettings = LLMSettings
-    logging: LoggingSettings = LoggingSettings
+    app: AppSettings = Field(default_factory=AppSettings)
+    db: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    llm: LLMSettings = Field(default_factory=LLMSettings)
+    log: LoggingSettings = Field(default_factory=LoggingSettings)
 
 # 项目启动直接初始化
 settings = Settings()
