@@ -9,4 +9,5 @@ class ChatThreadRepository:
     pass
 
     async def add(self, chat_thread:ChatThread):
+        """添加会话"""
         self.session.add(chat_thread)

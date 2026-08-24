@@ -13,7 +13,9 @@ app = FastAPI(
     debug=settings.app.debug,
     lifespan=lifespan,
 )
+
 app.include_router(chat_thread_router)
+app.include_router(product_router)
 
 configure_logging(settings.log.level)
 logger = get_logger(__name__)
@@ -25,8 +27,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(product_router)
 
 
 @app.get("/health", summary='健康检测端口')

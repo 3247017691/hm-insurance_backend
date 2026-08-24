@@ -11,6 +11,7 @@ class ChatThreadService:
         self.repository = ChatThreadRepository(session)
 
     async def add(self, user_id: int, title: str):
+        """创建会话"""
         # 用上下文管理，开启事务，运行完成，自动commit，出现异常，自动rollback
         async with self.session.begin():
             chat_thread = ChatThread(user_id=user_id, title=title)

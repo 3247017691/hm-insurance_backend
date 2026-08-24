@@ -18,4 +18,5 @@ async def create_chat_threads(
         user_id: Annotated[int, Header(alias="x-user-id")],
         service: ChatThreadService = Depends(get_service),
 ):
+    """创建会话"""
     return await service.add(user_id, request.title)
