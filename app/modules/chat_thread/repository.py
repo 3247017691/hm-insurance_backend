@@ -37,3 +37,7 @@ class ChatThreadRepository:
     async def update(self, chat_thread: ChatThread):
         """更新会话，刷新到数据库，事务由 service 层管理"""
         await self.session.flush()
+
+    async def delete(self,thread: ChatThread) -> None:
+        """删除会话"""
+        await self.session.delete(thread)

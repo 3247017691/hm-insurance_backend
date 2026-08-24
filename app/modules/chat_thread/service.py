@@ -43,3 +43,13 @@ class ChatThreadService:
             # 必须显式 refresh 加载最新值，否则序列化时会触发异步懒加载报 MissingGreenlet
             await self.session.refresh(chat_thread)
         return ChatThreadResponse.model_validate(chat_thread)
+
+
+    async def delete(self, thread_id: UUID, user_id: int) -> None:
+        """删除会话"""
+        async with self.session.begin():
+            thread = await self.repository.get_by_id(thread_id=thread_id, user_id=user_id)
+            if thread is None:
+                raise HTTPException(status_code=404, detail="会话不存在")
+            await self.repository.delete(thread)
+
