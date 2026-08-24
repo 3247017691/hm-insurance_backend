@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app import settings
 from app.core import configure_logging, get_logger
+from app.core.exceptions import ApplicationError
 from app.core.lifespan import lifespan
 from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
 from app.modules.product.router import router as product_router
@@ -37,14 +38,14 @@ def health_check() -> dict[str, str]:
     return {'status':'ok'}
 
 # 统一处理异常信息，发现是ChatThreadNotFound，返回对应的错误状态码和错误信息
-@app.exception_handler(ChatThreadNotFoundError)
-def handle_exception(request: Request, exc: Exception):
+@app.exception_handler(ApplicationError)
+def handle_exception(request: Request, exc: ApplicationError) -> JSONResponse:
     logger.error(f"处理异常, 请求路径: {request.url}, 异常信息: {exc}")
     return JSONResponse(
-        status_code=400,# http状态码
+        status_code=exc.status_code,# http状态码
         content={
-            "code": "CHAT_THREAD_NOT_FOUND", #项目自定义的状态码
-            "message": "会话不存在或者不属于当前用户"
+            "code": exc.code, #项目自定义的状态码
+            "message": exc.message
         }
     )
 
