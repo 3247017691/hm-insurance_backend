@@ -15,6 +15,17 @@ class  ChatThreadCreate(BaseModel):
         return value.strip()
 
 
+class ChatThreadUpdate(BaseModel):
+    """重命名会话请求"""
+
+    title: str = Field(min_length=1, max_length=200)
+
+    @field_validator('title', mode='before')
+    @classmethod
+    def normalize_title(cls, value: str) -> str:
+        return value.strip()
+
+
 class ChatThreadResponse(BaseModel):
     """会话响应"""
     model_config = ConfigDict(from_attributes=True)

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,11 +7,10 @@ from app.modules.chat_thread.models import ChatThread
 
 
 class ChatThreadRepository:
-    def __init__(self, session:AsyncSession):
+    def __init__(self, session: AsyncSession):
         self.session = session
-    pass
 
-    async def add(self, chat_thread:ChatThread):
+    async def add(self, chat_thread: ChatThread):
         """添加会话"""
         self.session.add(chat_thread)
 
@@ -22,3 +23,17 @@ class ChatThreadRepository:
         )
         result = await self.session.scalars(stmt)
         return list(result)
+
+    async def get_by_id(self, thread_id: UUID, user_id: int) -> ChatThread | None:
+        """查询指定用户的指定会话，会话不存在或不属于该用户时返回 None"""
+        stmt = (
+            select(ChatThread)
+            .where(ChatThread.user_id == user_id)
+            .where(ChatThread.id == thread_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
+    async def update(self, chat_thread: ChatThread):
+        """更新会话，刷新到数据库，事务由 service 层管理"""
+        await self.session.flush()
