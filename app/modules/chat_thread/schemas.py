@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class  ChatThreadCreate(BaseModel):
@@ -17,7 +17,9 @@ class  ChatThreadCreate(BaseModel):
 
 class ChatThreadResponse(BaseModel):
     """会话响应"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
-    title:str
+    title: str
     created_at: datetime
     updated_at: datetime
