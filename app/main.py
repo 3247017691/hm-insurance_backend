@@ -11,6 +11,7 @@ from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
 from app.modules.product.router import router as product_router
 from app.modules.chat_thread.router import router as chat_thread_router
 import sys
+from app.agents.insurance_advisor import init_insurance_agent
 from app.infra.checkpointer import (
     close_checkpointer,
     init_checkpointer,
@@ -57,8 +58,9 @@ def handle_exception(request: Request, exc: ApplicationError) -> JSONResponse:
 
 if __name__ == '__main__':
     uvicorn.run(
-        'app.main:app',
+        "app.main:app",
         host=settings.app.host,
         port=settings.app.port,
-        reload=False
+        reload=False,
+        loop="asyncio:SelectorEventLoop" if sys.platform == "win32" else "auto",
     )
