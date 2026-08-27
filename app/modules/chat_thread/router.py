@@ -18,6 +18,7 @@ router = APIRouter(prefix="/api/v1/chat-threads", tags=["会话管理"])
 def get_service(session:AsyncSession = Depends(get_session)):
     return ChatThreadService(session)
 
+
 @router.post("", response_model=ChatThreadResponse, tags=["会话管理"])
 async def create_chat_threads(
         request: ChatThreadCreate,

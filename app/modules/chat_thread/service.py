@@ -45,7 +45,6 @@ class ChatThreadService:
             await self.session.refresh(chat_thread)
         return ChatThreadResponse.model_validate(chat_thread)
 
-
     async def delete(self, thread_id: UUID, user_id: int) -> None:
         """删除会话"""
         async with self.session.begin():
