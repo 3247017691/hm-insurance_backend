@@ -1,4 +1,5 @@
 from pathlib import Path
+from sysconfig import scheme
 
 from pydantic import Field, computed_field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -35,18 +36,27 @@ class DatabaseSettings(EnvSettings):
     pool_recycle: int = Field(alias="DB_POOL_RECYCLE", default=1800)
 
 
-    @computed_field
-    @property
-    def url(self) -> str:
+    def build_url(self, scheme: str) -> str:
         # 自动拼接URL路径
         return PostgresDsn.build(
-            scheme="postgresql+asyncpg",
+            scheme=scheme,
             host=self.host,
             port=self.port,
             username=self.user,
             password=self.password,
             path=self.name
         ).encoded_string()
+
+    @computed_field
+    @property
+    def url(self) -> str:
+        return self.build_url('postgresql+asyncpg')
+
+    @computed_field
+    @property
+    def checkpoint_url(self) -> str:
+        return self.build_url('postgresql')
+
 
 class LLMSettings(EnvSettings):
     """模型相关配置"""
