@@ -10,6 +10,11 @@ from app.core.lifespan import lifespan
 from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
 from app.modules.product.router import router as product_router
 from app.modules.chat_thread.router import router as chat_thread_router
+import sys
+from app.infra.checkpointer import (
+    close_checkpointer,
+    init_checkpointer,
+)
 
 app = FastAPI(
     title=settings.app.name,
