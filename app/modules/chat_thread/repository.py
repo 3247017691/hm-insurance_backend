@@ -24,7 +24,7 @@ class ChatThreadRepository:
         result = await self.session.scalars(stmt)
         return list(result)
 
-    async def get_by_id(self, thread_id: UUID, user_id: int) -> ChatThread | None:
+    async def find_owned(self, thread_id: UUID, user_id: int) -> ChatThread | None:
         """查询指定用户的指定会话，会话不存在或不属于该用户时返回 None"""
         stmt = (
             select(ChatThread)
