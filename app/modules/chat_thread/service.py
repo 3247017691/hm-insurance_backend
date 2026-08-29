@@ -54,10 +54,18 @@ class ChatThreadService:
     async def delete(self, thread_id: UUID, user_id: int) -> None:
         """删除会话"""
         async with self.session.begin():
+            # 1.校验会话归属
             thread = await self.repository.find_owned(thread_id=thread_id, user_id=user_id)
             if thread is None:
                 raise ChatThreadNotFoundError
+
+            # 2.删除Checkpinter中的会话状态
+            await self.agent.checkpointer.adelete_thread(str(thread_id))
+
+            # 3.删除会话元数据
             await self.repository.delete(thread)
+
+
 
     async def get_history(
             self,
