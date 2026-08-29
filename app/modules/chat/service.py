@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph.state import CompiledStateGraph
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.agents.schemas import InsuranceAgentContext
 from app.modules.chat.schemas import ChatRequest
 from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
 from app.modules.chat_thread.repository import ChatThreadRepository
@@ -33,12 +34,14 @@ class ChatService:
         # 2.1.准备Agent输入
         _input = {"messages": [HumanMessage(content=request.message)]}
         config = {"configurable": {"thread_id": str(request.thread_id)}}
+        context = InsuranceAgentContext(user_id=user_id)
 
         # 2.2.使用v3协议获取异步事件流。
         #【注意】这里调用的函数是astream_events
         stream = await self.agent.astream_events(
             _input,
             config,
+            context=context,
             version="v3",
         )
 

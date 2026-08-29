@@ -3,7 +3,8 @@ from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from app import settings
-from app.agents.tools import query_candidate_products
+from app.agents.schemas import InsuranceAgentContext
+from app.agents.tools import query_candidate_products, save_insurance_plan
 from app.core import get_logger
 
 logger = get_logger(__name__)
@@ -27,9 +28,10 @@ def init_insurance_agent(checkpointer: AsyncPostgresSaver):
     # 2.创建Agent
     agent = create_agent(
         model=model,
-        tools=[query_candidate_products],
+        tools=[query_candidate_products, save_insurance_plan],
         system_prompt=SYSTEM_PROMPT,
-        checkpointer=checkpointer
+        checkpointer=checkpointer,
+        context_schema=InsuranceAgentContext,    # Context约束
     )
 
     logger.info('保险顾问Agent初始化成功~✅')
