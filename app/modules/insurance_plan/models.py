@@ -1,0 +1,60 @@
+from decimal import Decimal
+from typing import Any
+from uuid import UUID, uuid4
+
+from sqlalchemy import BigInteger, String, Text, ForeignKey, Integer, Numeric
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.common.models import CreateAtMixin, UpdateAtMixin, Base
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+
+
+class InsurancePlan(Base, CreateAtMixin, UpdateAtMixin):
+    """用户保险方案"""
+    __tablename__ = 'insurance_plan'
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+    )
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    plan_name: Mapped[str] = mapped_column(String(120))
+    summary: Mapped[str | None] = mapped_column(Text)
+    insured_profile: Mapped[dict[str, Any]] = mapped_column(
+        JSONB,
+        default='uninsured',
+        server_default='uninsured',
+    )
+
+class InsurancePlanItem(Base, CreateAtMixin, UpdateAtMixin):
+    """保险方案项"""
+    __tablename__ = "insurance_plan_items"
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+    )
+    plan_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("insurance_plans.id", ondelete="CASCADE"),
+    )
+    product_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("products.id"),
+    )
+    priority: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        server_default="1",
+    )
+    recommendation_reason: Mapped[str | None] = mapped_column(Text)
+    annual_premium_budget: Mapped[Decimal | None] = mapped_column(
+        Numeric(14, 2)
+    )
+    status: Mapped[str] = mapped_column(
+        String(30),
+        default="uninsured",
+        server_default="uninsured",
+    )
