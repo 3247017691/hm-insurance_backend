@@ -1,13 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Request
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infra.database import get_session
 from app.modules.chat_thread.schemas import (
     ChatThreadCreate,
+    ChatThreadMessagesResponse,
     ChatThreadResponse,
     ChatThreadUpdate,
 )
@@ -72,3 +73,20 @@ async def delete_chat_thread(
 ) -> None:
     """删除会话"""
     await service.delete(thread_id, user_id)
+
+
+@router.get(
+    "/{thread_id}/messages",
+    response_model=ChatThreadMessagesResponse,
+    summary="查询会话历史消息",
+    description="查询指定会话的历史消息和 interrupt 状态，会话不存在或不属于当前用户时返回 404",
+)
+async def get_chat_thread_messages(
+        thread_id: UUID,
+        request: Request,
+        user_id: Annotated[int, Header(alias="x-user-id")],
+        service: ChatThreadService = Depends(get_service),
+) -> ChatThreadMessagesResponse:
+    """查询会话历史消息"""
+    agent = request.app.state.agent
+    return await service.get_messages(thread_id, user_id, agent)

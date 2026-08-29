@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -26,7 +27,7 @@ class ChatThreadUpdate(BaseModel):
         return value.strip()
 
 
-class ChatThreadResponse(BaseModel):
+class  ChatThreadResponse(BaseModel):
     """会话响应"""
     model_config = ConfigDict(from_attributes=True)
 
@@ -34,3 +35,19 @@ class ChatThreadResponse(BaseModel):
     title: str
     created_at: datetime
     updated_at: datetime
+
+
+class ChatMessageResponse(BaseModel):
+    """会话消息响应"""
+
+    role: str
+    content: str
+    additional_info: Any | None = None
+
+
+class ChatThreadMessagesResponse(BaseModel):
+    """会话历史消息响应"""
+
+    thread_id: UUID
+    messages: list[ChatMessageResponse]
+    interrupt: Any | None = None
