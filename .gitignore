@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# 学习用 Notebook（输出中可能包含打印出的密钥，禁止提交）
+notebooks/
+
 # Python
 .venv/
 __pycache__/
