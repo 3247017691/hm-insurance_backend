@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class  ChatThreadCreate(BaseModel):
     """创建会话请求"""
-
     title:str = Field(default='新会话', min_length=1, max_length=200)
 
     @field_validator('title', mode='before')
@@ -18,7 +17,6 @@ class  ChatThreadCreate(BaseModel):
 
 class ChatThreadUpdate(BaseModel):
     """重命名会话请求"""
-
     title: str = Field(min_length=1, max_length=200)
 
     @field_validator('title', mode='before')
@@ -39,15 +37,13 @@ class  ChatThreadResponse(BaseModel):
 
 class ChatMessageResponse(BaseModel):
     """会话消息响应"""
-
-    role: str
+    role: Literal["user", "assistant"]
     content: str
     additional_info: Any | None = None
 
 
 class ChatHistoryResponse(BaseModel):
     """会话历史消息响应"""
-
     thread_id: UUID
     messages: list[ChatMessageResponse]
     interrupt: Any | None = None

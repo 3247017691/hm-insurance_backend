@@ -16,8 +16,12 @@ from app.modules.chat_thread.service import ChatThreadService
 
 router = APIRouter(prefix="/api/v1/chat-threads", tags=["会话管理"])
 
-def get_service(session:AsyncSession = Depends(get_session)):
-    return ChatThreadService(session)
+def get_service(
+        request: Request,
+        session:AsyncSession = Depends(get_session)
+):
+
+    return ChatThreadService(agent=request.app.state.agent, session=session)
 
 
 @router.post("", response_model=ChatThreadResponse, tags=["会话管理"])
@@ -89,4 +93,4 @@ async def get_chat_thread_messages(
 ) -> ChatHistoryResponse:
     """查询会话历史消息"""
     agent = request.app.state.agent
-    return await service.get_messages(thread_id, user_id, agent)
+    return await service.get_history(thread_id, user_id)
