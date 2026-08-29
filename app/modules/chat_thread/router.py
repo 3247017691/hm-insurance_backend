@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.infra.database import get_session
 from app.modules.chat_thread.schemas import (
     ChatThreadCreate,
-    ChatThreadMessagesResponse,
+    ChatHistoryResponse,
     ChatThreadResponse,
     ChatThreadUpdate,
 )
@@ -77,7 +77,7 @@ async def delete_chat_thread(
 
 @router.get(
     "/{thread_id}/messages",
-    response_model=ChatThreadMessagesResponse,
+    response_model=ChatHistoryResponse,
     summary="查询会话历史消息",
     description="查询指定会话的历史消息和 interrupt 状态，会话不存在或不属于当前用户时返回 404",
 )
@@ -86,7 +86,7 @@ async def get_chat_thread_messages(
         request: Request,
         user_id: Annotated[int, Header(alias="x-user-id")],
         service: ChatThreadService = Depends(get_service),
-) -> ChatThreadMessagesResponse:
+) -> ChatHistoryResponse:
     """查询会话历史消息"""
     agent = request.app.state.agent
     return await service.get_messages(thread_id, user_id, agent)

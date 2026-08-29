@@ -45,7 +45,7 @@ class ChatMessageResponse(BaseModel):
     additional_info: Any | None = None
 
 
-class ChatThreadMessagesResponse(BaseModel):
+class ChatHistoryResponse(BaseModel):
     """会话历史消息响应"""
 
     thread_id: UUID

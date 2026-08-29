@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .exceptions import ChatThreadNotFoundError
 from .models import ChatThread
 from .repository import ChatThreadRepository
-from .schemas import ChatMessageResponse, ChatThreadMessagesResponse, ChatThreadResponse
+from .schemas import ChatMessageResponse, ChatHistoryResponse, ChatThreadResponse
 
 
 class ChatThreadService:
@@ -59,7 +59,7 @@ class ChatThreadService:
             thread_id: UUID,
             user_id: int,
             agent: CompiledStateGraph,
-    ) -> ChatThreadMessagesResponse:
+    ) -> ChatHistoryResponse:
         """查询指定会话的历史消息与 interrupt 状态，消息由 LangGraph Checkpointer 持久化"""
         # 1.校验会话是否属于当前用户，避免泄露其他用户的会话消息
         thread = await self.repository.find_owned(thread_id=thread_id, user_id=user_id)
@@ -70,7 +70,7 @@ class ChatThreadService:
         config = {'configurable': {'thread_id': str(thread_id)}}
         state = await agent.aget_state(config)
         if state is None:
-            return ChatThreadMessagesResponse(thread_id=thread_id, messages=[], interrupt=None)
+            return ChatHistoryResponse(thread_id=thread_id, messages=[], interrupt=None)
 
         # 3.只保留 user/assistant 消息，过滤工具调用消息；human/ai 映射为前端期望的 user/assistant
         role_map = {'human': 'user', 'ai': 'assistant'}
@@ -92,7 +92,7 @@ class ChatThreadService:
                     interrupt = task.interrupts[0].value
                     break
 
-        return ChatThreadMessagesResponse(
+        return ChatHistoryResponse(
             thread_id=thread_id,
             messages=messages,
             interrupt=interrupt,
