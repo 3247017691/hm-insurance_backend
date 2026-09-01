@@ -45,8 +45,11 @@ async def save_insurance_plan(
     runtime: ToolRuntime[InsuranceAgentContext],
 ) -> dict[str, str]:
     """
-    保存当前用户的保险推荐方案。
-    当你查询完候选产品后，根据用户画像、候选产品生成保险组合方案，保存到数据库
+    Save the insurance recommendations for the current user.
+    When you have finished querying the candidate products,
+    generate an insurance portfolio plan
+    based on the user profile and the candidate products
+    and save it to the database.
     """
 
     async with AsyncSessionFactory() as session:
