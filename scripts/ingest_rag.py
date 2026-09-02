@@ -8,6 +8,8 @@
 """
 
 import asyncio
+import logging
+import os
 import sys
 from pathlib import Path
 
@@ -36,6 +38,35 @@ logger = get_logger(__name__)
 
 EMBEDDING_MODEL = "text-embedding-v4"
 COLLECTION_NAME = "insurance_collection"
+
+# httpx 默认 trust_env=True，会读这些环境变量作为代理
+PROXY_ENV_KEYS = (
+    "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
+    "http_proxy", "https_proxy", "all_proxy",
+)
+
+
+def use_direct_connection() -> None:
+    """绕开终端里残留的代理变量，强制直连。
+
+    MinerU / DashScope / DeepSeek 均为国内端点，本机直连可用；而本地代理客户端一旦
+    上游节点失效，就会出现 [SSL: UNEXPECTED_EOF_WHILE_READING]（CONNECT 建好后
+    TLS 握手被切断），表现为 MinerU 已经解析完但拉不回结果 zip。
+    """
+    cleared = [key for key in PROXY_ENV_KEYS if os.environ.pop(key, None)]
+    if cleared:
+        logger.info(f"已强制直连，清掉代理环境变量: {cleared}")
+
+
+def quiet_sqlalchemy_echo() -> None:
+    """关掉 SQL 回显。
+
+    app.infra.database 中 echo=True 会给 sqlalchemy.engine 挂一个自带格式的 handler，
+    而 engine 在本脚本导入阶段就建好了，所以在这里覆盖它的 handler 与日志级别。
+    """
+    engine_logger = logging.getLogger("sqlalchemy.engine")
+    engine_logger.handlers.clear()
+    engine_logger.setLevel(logging.WARNING)
 
 
 def build_vector_store() -> Milvus:
@@ -95,8 +126,10 @@ async def ingest_products(vector_store: Milvus, products: list[Product]) -> list
 
 
 async def main() -> int:
-    """脚本入口，返回进程退出码：存在失败产品或无产品可入库时返回 1。"""
+    """脚本入口，返回进程退出码：无在售产品或存在入库失败的产品时返回 1。"""
     configure_logging(settings.log.level)
+    quiet_sqlalchemy_echo()
+    use_direct_connection()
 
     try:
         logger.info(f"开始构建 RAG 知识库，向量集合: {COLLECTION_NAME}，Milvus: {settings.rag.milvus_url}")
