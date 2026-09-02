@@ -69,10 +69,6 @@ class LoggingSettings(EnvSettings):
 class RAGSettings(EnvSettings):
     """RAG相关配置"""
     mineru_token: str = Field(alias="MINERU_TOKEN")
-
-class RAGSettings(EnvSettings):
-    """RAG相关配置"""
-    mineru_token: str = Field(alias="MINERU_TOKEN")
     milvus_host: str = Field(alias="MILVUS_HOST", default="127.0.0.1")
     milvus_port: int = Field(alias="MILVUS_PORT", default=19530)
 

@@ -12,7 +12,7 @@ class ProductService:
         self.session = session
         self.repository = ProductRepository(session)
 
-    async def list_products(self, category: str | None, ):
+    async def list_products(self, category: str | None = None ):
         """
         按分类查询产品列表
         :param category: 产品分类
