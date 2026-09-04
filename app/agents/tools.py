@@ -4,7 +4,7 @@ from decimal import Decimal
 from fastapi.encoders import jsonable_encoder
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolRuntime
-
+from langgraph.config import get_stream_writer
 from app.agents.schemas import InsuranceAgentContext
 from app.infra.database import AsyncSessionFactory
 from app.modules.insurance_plan.schemas import InsurancePlanCreate
@@ -92,5 +92,8 @@ async def query_product_clause(
         }
         for i, chunk in enumerate(chunks, start=1)
     }
+
+    writer = get_stream_writer()
+    writer({"type": "additional_info", "data": sources})
 
     return json.dumps(sources, ensure_ascii=False)
