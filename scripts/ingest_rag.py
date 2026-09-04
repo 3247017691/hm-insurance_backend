@@ -36,7 +36,8 @@ from app.rag.pipeline import RAGPipeline
 
 logger = get_logger(__name__)
 
-EMBEDDING_MODEL = "text-embedding-v4"
+# 向量模型与查询侧 app.rag 共用同一配置，避免写入与检索模型不一致导致向量语义不兼容
+EMBEDDING_MODEL = settings.rag.embedding_model
 COLLECTION_NAME = "insurance_collection"
 
 # httpx 默认 trust_env=True，会读这些环境变量作为代理

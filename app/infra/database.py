@@ -20,7 +20,7 @@ DATABASE_URL = settings.db.url
 # 2. 创建异步数据库引擎
 engine: AsyncEngine = create_async_engine(
     DATABASE_URL,
-    echo=True,                              # 是否打印SQL语句
+    echo=settings.db.echo,                  # 是否打印SQL语句，由 DB_ECHO 控制
     pool_size=settings.db.pool_size,        # 连接池中长期保留的连接数
     max_overflow=settings.db.max_overflow,  # 连接池满后，允许临时创建的额外连接数
     pool_timeout=settings.db.pool_timeout,  # 获取连接的最长等待时间，单位：秒

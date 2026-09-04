@@ -1,15 +1,15 @@
+from langchain_community.embeddings import DashScopeEmbeddings
 from langchain_milvus import BM25BuiltInFunction, Milvus
-from langchain_ollama import OllamaEmbeddings
 
 from app.core.config import settings
 from app.rag.pipeline import RAGPipeline
 from app.rag.retriever import ParentChunkRetriever
 
-
 # 1.初始化向量模型
-_embeddings = OllamaEmbeddings(
-    model="qwen3-embedding:0.6b",
-    dimensions=1024,
+# 密钥由 settings 从绝对路径的 .env 读出后显式传入，不依赖进程环境变量与启动目录
+_embeddings = DashScopeEmbeddings(
+    model=settings.rag.embedding_model,
+    dashscope_api_key=settings.rag.dashscope_api_key,
 )
 
 # 2.初始化VectorStore

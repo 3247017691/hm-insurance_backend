@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from langchain_milvus import Milvus
 from pymilvus import Function, FunctionType
 
@@ -7,7 +6,6 @@ from app.infra.database import AsyncSessionFactory
 from app.rag.models import ParentChunk
 from app.rag.repository import ParentChunkRepository
 
-load_dotenv()
 logger = get_logger(__name__)
 
 def create_reranker(query: str) -> Function:
@@ -30,12 +28,12 @@ class ParentChunkRetriever:
         self.vector_store = vector_store
         logger.info(f"RAG Retriever 初始化完成✅️")
 
-    async def retrieve(self, query: str, product_id: int) -> list[ParentChunk]:
+    async def retrieve(self, query: str, product_id: int, k: int) -> list[ParentChunk]:
 
         # 在指定产品内混合检索并重排，得到子块
         child_chunks = await self.vector_store.asimilarity_search(
             query=query,
-            k=5,
+            k=k,
             fetch_k=10,
             expr=f'product_id == {product_id}',
             reranker=create_reranker(query)

@@ -69,6 +69,9 @@ class LoggingSettings(EnvSettings):
 class RAGSettings(EnvSettings):
     """RAG相关配置"""
     mineru_token: str = Field(alias="MINERU_TOKEN")
+    dashscope_api_key: str = Field(alias="DASHSCOPE_API_KEY")
+    # 写入（scripts/ingest_rag.py）与查询必须共用同一模型，否则向量语义不兼容
+    embedding_model: str = Field(alias="EMBEDDING_MODEL", default="text-embedding-v4")
     milvus_host: str = Field(alias="MILVUS_HOST", default="127.0.0.1")
     milvus_port: int = Field(alias="MILVUS_PORT", default=19530)
 
