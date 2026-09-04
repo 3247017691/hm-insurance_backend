@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 
 from fastapi.encoders import jsonable_encoder
@@ -81,8 +82,15 @@ async def query_product_clause(
     if not chunks:
         return "没有查询到相关保险条款"
 
-    return "\n\n".join(
-        f"章节：{' > '.join(chunk.section_path)}\n"
-        f"内容：{chunk.content}"
-        for chunk in chunks
-    )
+    sources = {
+        # 给文档编号，最终格式 {"ref-001": {"content": ""}}
+        f"ref-{i:03d}": {
+            "product_id": chunk.product_id,
+            "clause_name": chunk.clause_name,
+            "section_path": chunk.section_path,
+            "content": chunk.content,
+        }
+        for i, chunk in enumerate(chunks, start=1)
+    }
+
+    return json.dumps(sources, ensure_ascii=False)
