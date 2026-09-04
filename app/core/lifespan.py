@@ -12,13 +12,13 @@ from app.infra.database import check_database, close_database, logger
 async def lifespan(app: FastAPI):
     logger.info(f'[{settings.app.name}]应用启动中...')
     from app.rag import close_rag  # 导入模块就会初始化
+    # 1.检查业务数据库连接
+    await check_database()
+    # 2.初始化checkpointer
+    checkpointer = await init_checkpointer()
+    # 3.初始化保险顾问Agent
+    app.state.agent = init_insurance_agent(checkpointer)
     try:
-        # 1.检查业务数据库连接
-        await check_database()
-        # 2.初始化checkpointer
-        checkpointer = await init_checkpointer()
-        # 3.初始化保险顾问Agent
-        app.state.agent = init_insurance_agent(checkpointer)
         yield
     finally:
         logger.info("应用关闭中")

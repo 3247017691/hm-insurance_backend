@@ -1,6 +1,5 @@
 from collections.abc import AsyncGenerator
 
-from click import echo
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
