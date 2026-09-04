@@ -2,7 +2,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg.rows import dict_row
 from psycopg_pool import AsyncConnectionPool
 
-from app import settings
+from app.core import settings
 from app.core import get_logger
 
 logger = get_logger(__name__)

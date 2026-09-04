@@ -1,10 +1,9 @@
-from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import settings
 from app.agents.insurance_advisor import init_insurance_agent
+from app.core import settings
 from app.infra.checkpointer import init_checkpointer, close_checkpointer
 from app.infra.database import check_database, close_database, logger
 
@@ -12,7 +11,7 @@ from app.infra.database import check_database, close_database, logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f'[{settings.app.name}]应用启动中...')
-
+    from app.rag import close_rag  # 导入模块就会初始化
     try:
         # 1.检查业务数据库连接
         await check_database()
@@ -23,7 +22,9 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         logger.info("应用关闭中")
-        # 4.关闭Checkpointer连接池
+        # 4.关闭RAG
+        close_rag()
+        # 5.关闭Checkpointer连接池
         await close_checkpointer()
-        # 5.关闭SQLAlchemy连接池
+        # 6.关闭SQLAlchemy连接池
         await close_database()

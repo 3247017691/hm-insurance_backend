@@ -2,7 +2,7 @@ from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-from app import settings
+from app.core import settings
 from app.agents.schemas import InsuranceAgentContext
 from app.agents.tools import query_candidate_products, save_insurance_plan
 from app.core import get_logger

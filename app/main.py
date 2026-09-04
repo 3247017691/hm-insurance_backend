@@ -1,22 +1,19 @@
+import sys
+
 import uvicorn
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from app import settings
-from app.core import configure_logging, get_logger
+from starlette.middleware.cors import CORSMiddleware
+
+from app.core import configure_logging, get_logger, settings
 from app.core.exceptions import ApplicationError
 from app.core.lifespan import lifespan
-from app.modules.chat_thread.exceptions import ChatThreadNotFoundError
-from app.modules.product.router import router as product_router
-from app.modules.chat_thread.router import router as chat_thread_router
 from app.modules.chat.router import router as chat_router
-import sys
-from app.agents.insurance_advisor import init_insurance_agent
-from app.infra.checkpointer import (
-    close_checkpointer,
-    init_checkpointer,
-)
+from app.modules.chat_thread.router import router as chat_thread_router
+from app.modules.product.router import router as product_router
+
+configure_logging(settings.log.level)
+logger = get_logger(__name__)
 
 app = FastAPI(
     title=settings.app.name,
@@ -27,9 +24,6 @@ app = FastAPI(
 app.include_router(chat_thread_router)
 app.include_router(product_router)
 app.include_router(chat_router)
-
-configure_logging(settings.log.level)
-logger = get_logger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
