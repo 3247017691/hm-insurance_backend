@@ -1,4 +1,4 @@
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.rag.models import ParentChunk
 class ParentChunkRepository:
@@ -15,3 +15,9 @@ class ParentChunkRepository:
                 ParentChunk.product_id == product_id
             )
         )
+
+    async def list_by_ids(self, ids: list[str]) -> list[ParentChunk]:
+        result = await self.session.scalars(
+            select(ParentChunk).where(ParentChunk.id.in_(ids))
+        )
+        return list(result.all())
