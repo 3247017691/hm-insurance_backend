@@ -1,9 +1,10 @@
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, BaseMessage
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from langgraph.types import Command
 
+from app.agents.intent_router import intent_router
 from app.agents.schemas import InsuranceAgentState, Intent
 from app.core import get_logger
 
@@ -11,8 +12,56 @@ logger = get_logger(__name__)
 # 一、定义节点
 
 # 1.路由节点
-async def route_node(state: InsuranceAgentState) -> Command[Intent]:
-    previous_workflow = state.get("previous_workflow", "")
+async def route_node(
+    state: InsuranceAgentState,
+) -> Command[Intent]:
+    """意图识别节点，后续再完善"""
+    # 1.获取active_workflow，也就是上一轮会话的工作流
+    previous_workflow = state.get("active_workflow", "")
+    # 2.获取上轮AI消息
+    previous_ai_message = find_previous_ai_message(state['messages'])
+    # 3.拼接上下文
+    context = f"上轮对话工作流:{previous_workflow}\n上轮对话AI回复:{previous_ai_message}"
+    # 4.意图识别
+    result = await intent_router.route(state['messages'][-1].content, context)
+
+    # 4.1.返回str，说明是寒暄，直接返回固定回复，跳至END
+    if isinstance(result, str):
+        return Command(
+            update={
+                "messages": [AIMessage(content=result)],
+                "previous_workflow": previous_workflow,
+                "active_workflow": "chitchat",
+            },
+            goto=END,
+        )
+
+    # 4.2.返回RouteResult，记录上轮工作流、本轮工作流
+    return Command(
+        update={
+            "previous_workflow": previous_workflow,
+            "active_workflow": result.intent
+        },
+        goto=result.intent,
+    )
+
+def find_previous_ai_message(messages: list[BaseMessage]) -> str:
+    """查找本轮用户消息之前最近一条可展示的AI回复"""
+
+    for message in reversed(messages[:-1]):
+        # 跳过非AIMessage
+        if not isinstance(message, AIMessage):
+            continue
+        # 跳过工具消息
+        if message.tool_calls:
+            continue
+        # 如果是正常AIMessage，直接返回
+        if message.text:
+            return message.text
+    # 如果是空消息
+    return ""
+
+
     intent = "chitchat"
     return Command(
         update={
