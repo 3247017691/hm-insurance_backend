@@ -1,12 +1,15 @@
+import os
+
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-from app.core import settings
 from app.agents.schemas import InsuranceAgentContext
 from app.agents.tools import query_candidate_products, save_insurance_plan, query_product_clause
 from app.core import get_logger
 
+load_dotenv()
 logger = get_logger(__name__)
 
 SYSTEM_PROMPT = """
@@ -25,10 +28,11 @@ def init_insurance_agent(checkpointer: AsyncPostgresSaver):
 
     # 1.初始化模型
     model = init_chat_model(
-        model=settings.llm.chat_model,
-        api_key=settings.llm.api_key,
-        extra_body={'thinking':{'type':'disabled'}}
-
+        model="qwen3.7-flash",
+        model_provider='openai',
+        base_url=os.getenv("DASHSCOPE_BASE_URL"),
+        api_key=os.getenv("DASHSCOPE_API_KEY"),
+        extra_body={"enable_thinking": False}
     )
 
     # 2.创建Agent

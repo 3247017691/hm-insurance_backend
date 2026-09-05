@@ -1,15 +1,16 @@
+import os
 import re
 from typing import Literal
 
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain.messages import HumanMessage, SystemMessage
 
 from app.agents.schemas import RouteResult
-from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
-
+load_dotenv()
 
 SYSTEM_PROMPT = """
 你是保险商城智能客服的意图识别节点，请判断用户消息应该交给哪个工作流。
@@ -26,10 +27,11 @@ class IntentRouter:
 
     def __init__(self) -> None:
         model = init_chat_model(
-            model=settings.llm.chat_model,
-            model_provider="deepseek",
-            api_key=settings.llm.api_key,
-            extra_body={"thinking": {"type": "disabled"}},
+            model="qwen3.7-flash",
+            model_provider='openai',
+            base_url=os.getenv("DASHSCOPE_BASE_URL"),
+            api_key=os.getenv("DASHSCOPE_API_KEY"),
+            extra_body={"enable_thinking": False}
         )
         self.model = model.with_structured_output(RouteResult)
 

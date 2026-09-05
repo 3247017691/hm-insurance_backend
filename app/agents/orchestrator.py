@@ -4,6 +4,7 @@ from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from langgraph.types import Command
 
+from app.agents.chitchat import init_chitchat_agent
 from app.agents.intent_router import intent_router
 from app.agents.schemas import InsuranceAgentState, Intent
 from app.core import get_logger
@@ -62,14 +63,6 @@ def find_previous_ai_message(messages: list[BaseMessage]) -> str:
     return ""
 
 
-    intent = "chitchat"
-    return Command(
-        update={
-            "previous_workflow": previous_workflow,
-            "active_workflow": intent
-        },
-        goto=intent,
-    )
 
 # 2.闲聊节点
 async def chitchat_node(state: InsuranceAgentState) -> dict:
@@ -94,12 +87,14 @@ async def fallback_node(state: InsuranceAgentState) -> dict:
 
 
 # 二、定义主graph
-def init_insurance_orchestrator(checkpointer: AsyncPostgresSaver) -> StateGraph:
+def init_insurance_orchestrator(
+    checkpointer: AsyncPostgresSaver,
+):
     """初始化保险顾问主Graph"""
 
-    builder = StateGraph(InsuranceAgentState)
+    builder = StateGraph(InsuranceAgentState, )
     builder.add_node("route", route_node)
-    builder.add_node("chitchat", chitchat_node)
+    builder.add_node("chitchat", init_chitchat_agent())
     builder.add_node("recommendation_plan", recommendation_node)
     builder.add_node("claim", claim_node)
     builder.add_node("human_handoff", human_handoff_node)
@@ -112,4 +107,5 @@ def init_insurance_orchestrator(checkpointer: AsyncPostgresSaver) -> StateGraph:
     builder.add_edge("human_handoff", END)
     builder.add_edge("fallback", END)
 
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)
+
