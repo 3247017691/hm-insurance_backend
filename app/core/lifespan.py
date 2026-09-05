@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.agents.insurance_advisor import init_insurance_agent
+from app.agents.orchestrator import init_insurance_orchestrator
 from app.core import settings
 from app.infra.checkpointer import init_checkpointer, close_checkpointer
 from app.infra.database import check_database, close_database, logger
@@ -17,7 +18,7 @@ async def lifespan(app: FastAPI):
     # 2.初始化checkpointer
     checkpointer = await init_checkpointer()
     # 3.初始化保险顾问Agent
-    app.state.agent = init_insurance_agent(checkpointer)
+    app.state.agent = init_insurance_orchestrator(checkpointer)
     try:
         yield
     finally:
