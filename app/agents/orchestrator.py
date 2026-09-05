@@ -5,8 +5,9 @@ from langgraph.graph import StateGraph
 from langgraph.types import Command
 
 from app.agents.schemas import InsuranceAgentState, Intent
+from app.core import get_logger
 
-
+logger = get_logger(__name__)
 # 一、定义节点
 
 # 1.路由节点

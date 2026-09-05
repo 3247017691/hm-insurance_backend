@@ -1,5 +1,5 @@
 from typing import Literal
-
+from dataclasses import dataclass
 from langgraph.graph import MessagesState
 from pydantic import BaseModel, Field
 
@@ -22,3 +22,8 @@ class InsuranceAgentState(MessagesState):
 
     previous_workflow: Intent
     active_workflow: Intent
+
+@dataclass(frozen=True)
+class InsuranceAgentContext:
+    """保险顾问Agent运行时上下文"""
+    user_id: int
